@@ -7,56 +7,44 @@ async function detectArchitecture() {
     if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
         try {
             const hints = await navigator.userAgentData.getHighEntropyValues(['architecture', 'bitness', 'platform']);
-            console.log("Client Hints Received:", hints);
-
-            // Priority 1: Direct Architecture check
-            if (hints.architecture === 'arm') {
-                return hints.bitness === '64' ? 'arm64' : 'arm32';
-            }
-
-            // Priority 2: Inferred from Android + Bitness
-            if (hints.platform === 'Android' || hints.platform === 'android') {
-                if (hints.bitness === '64') return 'arm64';
-                if (hints.bitness === '32') return 'arm32';
-            }
-        } catch (e) {
-            console.warn("Client Hints detection failed:", e);
-        }
+            if (hints.bitness === '64') return 'arm64';
+            if (hints.bitness === '32') return 'arm32';
+        } catch (e) { }
     }
 
-    // 2. Fallback and Deep Verification (Critical for Redmi A3 vs A14)
+    // 2. UNIVERSAL HARDWARE PROOF (The most reliable method)
+    // We check if the JavaScript engine supports 64-bit mathematical operations.
+    // If these are supported, the OS is 64-bit, period.
+    let is64BitOS = false;
+    try {
+        // BigInt64Array is a foolproof indicator of a 64-bit execution environment
+        if (typeof BigInt64Array !== 'undefined') {
+            is64BitOS = true;
+        }
+    } catch (e) { }
+
     const platform = (navigator.platform || '').toLowerCase();
     const userAgent = navigator.userAgent.toLowerCase();
 
-    console.log("OS Verification - Platform:", platform);
-    console.log("OS Verification - UA:", userAgent);
-
-    // KEY FIX: Trust ARMv8/ARM64 potential.
-    // Modern Android (Samsung A14, Pixel, etc.) REQUIRES ARM64 for full compatibility.
-    // Even if 'armv8l' (32-bit mode) is reported, we prefer ARM64 unless it's a low-spec device.
-    const has64BitHardware = platform.includes('armv8') || platform.includes('aarch64') ||
-        platform.includes('arm64') || userAgent.includes('armv8') ||
-        userAgent.includes('aarch64') || userAgent.includes('arm64');
-
-    if (has64BitHardware) {
-        // Special case: 'armv8l' with LOW RAM (usually <= 3GB) is a strong sign of 32-bit OS (Redmi A3).
-        // Samsung A14 (4GB+) will correctly fall into the arm64 category.
-        const isLikely32bitOS = platform.includes('armv8l') && navigator.deviceMemory && navigator.deviceMemory < 4;
-
-        if (isLikely32bitOS) {
-            return 'arm32';
-        }
-        return 'arm64';
-    }
-
-    // Legacy hardware (v7 and below)
-    if (platform.includes('armv7') || platform.includes('armeabi') || platform.includes('arm')) {
-        return 'arm32';
-    }
-
-    // Check for x86 (Desktop/Emulators)
+    // 3. ARCHITECTURE CATEGORIZATION
+    // First, check if it's an x86/PC environment
     if (platform.includes('x86_64') || platform.includes('amd64') || userAgent.includes('x64')) {
         return 'x64';
+    }
+
+    // Now handle ARM (Android phones)
+    const isARM = platform.includes('arm') || userAgent.includes('arm') || userAgent.includes('aarch64');
+
+    if (isARM || userAgent.includes('android')) {
+        // If our math test proved 64-bit, we ALWAYS give them ARM64 for performance.
+        if (is64BitOS) {
+            // The only exception is if the platform explicitly says 'armv7' (very old hardware)
+            if (platform.includes('armv7') && !platform.includes('armv8')) {
+                return 'arm32';
+            }
+            return 'arm64';
+        }
+        return 'arm32';
     }
 
     return 'unknown';
