@@ -3,48 +3,53 @@
  * or navigator.platform fallback.
  */
 async function detectArchitecture() {
+    let bitness = 'unknown';
+
     // 1. Check for Modern User-Agent Client Hints
     if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
         try {
             const hints = await navigator.userAgentData.getHighEntropyValues(['architecture', 'bitness', 'platform']);
-            if (hints.bitness === '64') return 'arm64';
-            if (hints.bitness === '32') return 'arm32';
+            if (hints.bitness === '64') bitness = '64';
+            if (hints.bitness === '32') bitness = '32';
         } catch (e) { }
     }
 
-    // 2. UNIVERSAL HARDWARE PROOF (The most reliable method)
-    // We check if the JavaScript engine supports 64-bit mathematical operations.
-    // If these are supported, the OS is 64-bit, period.
-    let is64BitOS = false;
-    try {
-        // BigInt64Array is a foolproof indicator of a 64-bit execution environment
-        if (typeof BigInt64Array !== 'undefined') {
-            is64BitOS = true;
-        }
-    } catch (e) { }
-
     const platform = (navigator.platform || '').toLowerCase();
     const userAgent = navigator.userAgent.toLowerCase();
+    const totalRAM = navigator.deviceMemory || 4; // Assume 4GB if undetected
 
-    // 3. ARCHITECTURE CATEGORIZATION
-    // First, check if it's an x86/PC environment
-    if (platform.includes('x86_64') || platform.includes('amd64') || userAgent.includes('x64')) {
-        return 'x64';
-    }
+    // 2. Identify ARM vs x86
+    const isX86 = platform.includes('x86_64') || platform.includes('amd64') || userAgent.includes('x64');
+    const isARM = platform.includes('arm') || userAgent.includes('aarch64') || platform.includes('aarch64');
 
-    // Now handle ARM (Android phones)
-    const isARM = platform.includes('arm') || userAgent.includes('arm') || userAgent.includes('aarch64');
+    if (isX86) return 'x64';
 
+    // 3. Deep Logic for ARM (Android)
     if (isARM || userAgent.includes('android')) {
-        // If our math test proved 64-bit, we ALWAYS give them ARM64 for performance.
-        if (is64BitOS) {
-            // The only exception is if the platform explicitly says 'armv7' (very old hardware)
-            if (platform.includes('armv7') && !platform.includes('armv8')) {
-                return 'arm32';
-            }
+        // If Client Hints already gave us a definitive answer, use it.
+        if (bitness === '64') return 'arm64';
+        if (bitness === '32') return 'arm32';
+
+        // Tie-breaker for devices like Redmi A3 (armv8 hardware but 32-bit OS)
+        // 'armv8l' is almost always a 32-bit OS environment.
+        if (platform.includes('armv8l')) {
+            // Budget phones (like Redmi A3) usually have <= 3GB RAM and run 32-bit OS.
+            // High-end phones (Samsung A14) have 4GB+ RAM and run 64-bit OS.
+            return totalRAM <= 3 ? 'arm32' : 'arm64';
+        }
+
+        // Standard 64-bit tags
+        if (platform.includes('aarch64') || platform.includes('arm64')) {
             return 'arm64';
         }
-        return 'arm32';
+
+        // Standard 32-bit tags
+        if (platform.includes('armv7') || platform.includes('armv6') || platform.includes('armeabi')) {
+            return 'arm32';
+        }
+
+        // Default to ARM64 for modern Android if we can't be sure (90% case)
+        return 'arm64';
     }
 
     return 'unknown';
