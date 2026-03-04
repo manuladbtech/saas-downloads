@@ -11,58 +11,53 @@
 async function detectArchitecture() {
     const platform = (navigator.platform || '').toLowerCase();
     const ua = navigator.userAgent.toLowerCase();
-    const ram = navigator.deviceMemory; // in GB, or undefined if not supported
+    const ram = navigator.deviceMemory; // in GB — 1, 2, 4, 8 etc. or undefined if old browser
 
-    // --- Step 1: Client Hints (Chrome 90+ on Android) ---
-    if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
-        try {
-            const hints = await navigator.userAgentData.getHighEntropyValues([
-                'architecture', 'bitness', 'platform', 'model'
-            ]);
-            console.log('[Detect] Client Hints:', hints);
+    console.log('[Detect] RAM:', ram, '| Platform:', platform, '| UA (partial):', ua.slice(0, 80));
 
-            // 'bitness' is the OS bit-width — the most reliable signal.
-            if (hints.bitness === '64') return 'arm64';
-            // If bitness is explicitly '32', only use arm32 if we also see arm hardware.
-            if (hints.bitness === '32' && hints.architecture === 'arm') return 'arm32';
-        } catch (e) {
-            console.warn('[Detect] Client Hints failed:', e);
-        }
-    }
-
-    // --- Step 2: Platform & UA String Analysis ---
-    console.log('[Detect] Fallback — platform:', platform, '| ua snippet:', ua.slice(0, 120));
-
-    // x86 (PC emulators like BlueStacks)
+    // x86 — PC emulators (BlueStacks etc.). Check this first.
     if (platform.includes('x86_64') || platform.includes('amd64') || ua.includes('x86_64')) {
         return 'x64';
     }
 
-    // True 64-bit ARM indicators
-    if (platform.includes('aarch64') || platform.includes('arm64') || ua.includes('aarch64')) {
-        return 'arm64';
-    }
-
-    // 'armv8l' = ARMv8 hardware running in 32-bit OS mode (e.g. Redmi 9A, Redmi A3).
-    // These devices CANNOT run ARM64 APKs despite having ARM64 hardware.
-    // Default to arm32 UNLESS the device confirms it has HIGH RAM (4GB+),
-    // which would indicate a modern 64-bit phone with a legacy platform string.
-    if (platform.includes('armv8l')) {
-        if (ram !== undefined && ram >= 3) return 'arm64'; // e.g. Samsung A14 with legacy string
-        return 'arm32'; // Redmi 9A / Redmi A3 — low RAM or deviceMemory unsupported
-    }
-
-    // Clearly old ARMv7 hardware (pre-2016)
-    if (platform.includes('armv7') || platform.includes('armeabi') || ua.includes('armv7')) {
-        return 'arm32';
-    }
-
-    // --- Step 3: Conservative Default ---
-    // Any modern Android phone (including undetected ones) is almost certainly 64-bit.
-    // Defaulting to ARM64 is safer than ARM32 — it won't cause "not compatible" on new phones.
+    // --- RAM-First Strategy for Android ---
+    // deviceMemory is the single most reliable cross-device signal available.
+    // Budget 32-bit Android phones (Redmi 9A = 2GB, Redmi A3 = 3GB) have LOW RAM.
+    // Modern 64-bit phones (Samsung A14 = 4GB, Pixel 7 = 12GB) have HIGH RAM.
     if (ua.includes('android')) {
+        if (ram !== undefined) {
+            // RAM is available — use it as the primary decider.
+            if (ram <= 3) return 'arm32'; // Budget/32-bit phone (Redmi 9A = 2GB, Redmi A3 = 3GB)
+            return 'arm64';               // Modern phone (Samsung A14 = 4GB, Pixel = 12GB)
+        }
+
+        // RAM not readable → fall back to Client Hints.
+        if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+            try {
+                const hints = await navigator.userAgentData.getHighEntropyValues(['architecture', 'bitness']);
+                console.log('[Detect] Client Hints:', hints);
+                // Only trust bitness if architecture also confirms ARM (not x86).
+                if (hints.architecture === 'arm') {
+                    return hints.bitness === '64' ? 'arm64' : 'arm32';
+                }
+                if (hints.bitness === '64') return 'arm64';
+                if (hints.bitness === '32') return 'arm32';
+            } catch (e) {
+                console.warn('[Detect] Client Hints failed:', e);
+            }
+        }
+
+        // Last resort for Android — platform strings.
+        if (platform.includes('aarch64') || platform.includes('arm64') || ua.includes('aarch64')) return 'arm64';
+        if (platform.includes('armv8l') || platform.includes('armv7') || platform.includes('armeabi')) return 'arm32';
+
+        // Absolute final fallback for Android — default arm64 (90%+ of modern phones).
         return 'arm64';
     }
+
+    // Non-Android (desktop, iOS etc.)
+    if (platform.includes('aarch64') || platform.includes('arm64')) return 'arm64';
+    if (platform.includes('arm')) return 'arm32';
 
     return 'unknown';
 }
