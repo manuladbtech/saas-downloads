@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download App - Smart Architecture Detection</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <meta name="description" content="Download the latest version of our app optimized for your device architecture.">
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <main class="container">
+        <header class="hero">
+            <h1 class="title">Get the App</h1>
+            <p class="subtitle">Experience the game with maximum performance. We'll help you pick the right version for
+                your device.</p>
+        </header>
+
+        <section class="download-section">
+            <div id="detection-status" class="status-card">
+                <div class="loader-spinner" id="loader"></div>
+                <p id="status-text">Analyzing device compatibility...</p>
+            </div>
+
+            <div class="grid">
+                <!-- ARM64 Button -->
+                <div class="download-card" id="card-arm64">
+                    <div class="badge" id="badge-arm64">Recommended</div>
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M12 15l-3-3h2V8h2v4h2l-3 3zM2 17l.621 2.485A2 2 0 004.561 21H19.439a2 2 0 001.94-1.515L22 17H2z" />
+                        </svg>
+                    </div>
+                    <h3>ARM64 (v8a)</h3>
+                    <p>Optimized for modern 64-bit devices. Provides better performance and security.</p>
+                    <a href="https://raw.githubusercontent.com/manuladbtech/saas-downloads/main/apk_download_test/apk_versions/app-arm64-v8a-release.apk"
+                        class="btn" id="btn-arm64">Download APK</a>
+                </div>
+
+                <!-- ARMv7 Button -->
+                <div class="download-card" id="card-arm32">
+                    <div class="badge" id="badge-arm32">Recommended</div>
+                    <div class="icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path
+                                d="M12 15l-3-3h2V8h2v4h2l-3 3zM2 17l.621 2.485A2 2 0 004.561 21H19.439a2 2 0 001.94-1.515L22 17H2z" />
+                        </svg>
+                    </div>
+                    <h3>ARMv7 (32-bit)</h3>
+                    <p>Compatible with older or budget devices. Solid stability for classic hardware.</p>
+                    <a href="https://raw.githubusercontent.com/manuladbtech/saas-downloads/main/apk_download_test/apk_versions/app-armeabi-v7a-release.apk"
+                        class="btn" id="btn-arm32">Download APK</a>
+                </div>
+
+                <!-- Universal / x86 -->
+                <div class="download-card secondary" id="card-x86">
+                    <h3>Other Versions</h3>
+                    <p>Looking for PC emulators or universal versions?</p>
+                    <div class="btn-group">
+                        <a href="https://raw.githubusercontent.com/manuladbtech/saas-downloads/main/apk_download_test/apk_versions/app-release.apk"
+                            class="btn-outline">Universal APK</a>
+                        <a href="https://raw.githubusercontent.com/manuladbtech/saas-downloads/main/apk_download_test/apk_versions/app-x86_64-release.apk"
+                            class="btn-outline">x86_64</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>Not sure which one to pick? The highlighted version is auto-detected for your system.</p>
+            <div class="copy-link-container">
+                <button class="copy-btn" id="copy-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M8 10a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2v-8z" />
+                        <path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2" />
+                    </svg>
+                    Copy Download Link
+                </button>
+            </div>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
