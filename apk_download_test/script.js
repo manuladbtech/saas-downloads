@@ -16,9 +16,10 @@ async function detectArchitecture() {
 
             // Priority 2: Inferred from Android + Bitness
             if (hints.platform === 'Android' || hints.platform === 'android') {
-                // If bitness is 64, we still verify with platform string below 
-                // because some budget phones report 64 hardware but 32 OS.
-                if (hints.bitness !== '64') return 'arm32';
+                // Trust bitness directly from Client Hints if available, 
+                // as it accurately reflects the OS mode.
+                if (hints.bitness === '64') return 'arm64';
+                if (hints.bitness === '32') return 'arm32';
             }
         } catch (e) {
             console.warn("Client Hints detection failed:", e);
