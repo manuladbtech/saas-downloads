@@ -43,11 +43,13 @@ async function detectArchitecture() {
         return 'arm64';
     }
 
-    // 'armv8l' = ARMv8 hardware running in 32-bit mode (e.g. Redmi A3).
-    // We use RAM as a tiebreaker: if the device has < 4GB RAM it is likely budget/32-bit OS.
+    // 'armv8l' = ARMv8 hardware running in 32-bit OS mode (e.g. Redmi 9A, Redmi A3).
+    // These devices CANNOT run ARM64 APKs despite having ARM64 hardware.
+    // Default to arm32 UNLESS the device confirms it has HIGH RAM (4GB+),
+    // which would indicate a modern 64-bit phone with a legacy platform string.
     if (platform.includes('armv8l')) {
-        if (ram !== undefined && ram < 4) return 'arm32';
-        return 'arm64'; // >= 4GB RAM on armv8l means modern 64-bit phone
+        if (ram !== undefined && ram >= 4) return 'arm64'; // e.g. Samsung A14 with legacy string
+        return 'arm32'; // Redmi 9A / Redmi A3 — low RAM or deviceMemory unsupported
     }
 
     // Clearly old ARMv7 hardware (pre-2016)
