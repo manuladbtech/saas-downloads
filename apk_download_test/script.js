@@ -16,8 +16,6 @@ async function detectArchitecture() {
 
             // Priority 2: Inferred from Android + Bitness
             if (hints.platform === 'Android' || hints.platform === 'android') {
-                // Trust bitness directly from Client Hints if available, 
-                // as it accurately reflects the OS mode.
                 if (hints.bitness === '64') return 'arm64';
                 if (hints.bitness === '32') return 'arm32';
             }
@@ -26,26 +24,33 @@ async function detectArchitecture() {
         }
     }
 
-    // 2. Fallback and Deep Verification (Critical for Redmi A3 / budget phones)
+    // 2. Fallback and Deep Verification (Critical for Redmi A3 vs A14)
     const platform = (navigator.platform || '').toLowerCase();
     const userAgent = navigator.userAgent.toLowerCase();
 
     console.log("OS Verification - Platform:", platform);
     console.log("OS Verification - UA:", userAgent);
 
-    // KEY FIX: Check UA and Platform for any 64-bit indicators
-    // Modern devices often report 'armv8l' (32-bit mode) in legacy platform string, 
-    // but include 'aarch64' or 'arm64' in their User Agent.
-    const is64 = platform.includes('aarch64') || platform.includes('arm64') ||
+    // KEY FIX: Trust ARMv8/ARM64 potential.
+    // Modern Android (Samsung A14, Pixel, etc.) REQUIRES ARM64 for full compatibility.
+    // Even if 'armv8l' (32-bit mode) is reported, we prefer ARM64 unless it's a low-spec device.
+    const has64BitHardware = platform.includes('armv8') || platform.includes('aarch64') ||
+        platform.includes('arm64') || userAgent.includes('armv8') ||
         userAgent.includes('aarch64') || userAgent.includes('arm64');
 
-    if (is64) {
+    if (has64BitHardware) {
+        // Special case: 'armv8l' with LOW RAM (usually <= 3GB) is a strong sign of 32-bit OS (Redmi A3).
+        // Samsung A14 (4GB+) will correctly fall into the arm64 category.
+        const isLikely32bitOS = platform.includes('armv8l') && navigator.deviceMemory && navigator.deviceMemory < 4;
+
+        if (isLikely32bitOS) {
+            return 'arm32';
+        }
         return 'arm64';
     }
 
-    // If it includes 'armv8l', 'armv7', etc. and passed the 64-bit check above, 
-    // then it really is a 32-bit environment (Redmi A3 case).
-    if (platform.includes('armv8l') || platform.includes('armv7') || platform.includes('armeabi') || platform.includes('arm')) {
+    // Legacy hardware (v7 and below)
+    if (platform.includes('armv7') || platform.includes('armeabi') || platform.includes('arm')) {
         return 'arm32';
     }
 
