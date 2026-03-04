@@ -14,8 +14,22 @@ async function detectArchitecture() {
         return 'x64';
     }
 
+    // CRITICAL: 'armv8l' literally means ARM v8 in 32-bit mode.
+    // This is a definitive, unambiguous indicator of a 32-bit OS.
+    // It applies to ALL devices with this string (Redmi 9A 2GB, 4GB, Redmi A3, etc.)
+    // regardless of RAM amount — RAM cannot override this platform truth.
+    if (platform.includes('armv8l')) {
+        showDebug(`RAM=${ram} | plat="${platform}" | REASON: armv8l=32bit | v12`);
+        return 'arm32';
+    }
+
+    // True 64-bit indicators
+    if (platform.includes('aarch64') || platform.includes('arm64') || ua.includes('aarch64')) {
+        return 'arm64';
+    }
+
     if (ua.includes('android')) {
-        // RAM is available — most reliable signal
+        // RAM available — use as primary tiebreaker for ambiguous devices
         if (ram !== undefined) {
             if (ram <= 3) return 'arm32';
             return 'arm64';
@@ -35,14 +49,12 @@ async function detectArchitecture() {
         }
 
         // Platform string fallback
-        if (platform.includes('aarch64') || platform.includes('arm64') || ua.includes('aarch64')) return 'arm64';
-        if (platform.includes('armv8l') || platform.includes('armv7') || platform.includes('armeabi')) return 'arm32';
+        if (platform.includes('armv7') || platform.includes('armeabi')) return 'arm32';
 
         // Final Android default
         return 'arm64';
     }
 
-    if (platform.includes('aarch64') || platform.includes('arm64')) return 'arm64';
     if (platform.includes('arm')) return 'arm32';
 
     return 'unknown';
