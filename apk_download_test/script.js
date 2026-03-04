@@ -33,12 +33,18 @@ async function detectArchitecture() {
     console.log("OS Verification - Platform:", platform);
     console.log("OS Verification - UA:", userAgent);
 
-    // KEY FIX: 'armv8l' is 32-BIT mode on ARMv8. 'aarch64' is TRUE 64-BIT.
-    if (platform.includes('aarch64') || platform.includes('arm64')) {
+    // KEY FIX: Check UA and Platform for any 64-bit indicators
+    // Modern devices often report 'armv8l' (32-bit mode) in legacy platform string, 
+    // but include 'aarch64' or 'arm64' in their User Agent.
+    const is64 = platform.includes('aarch64') || platform.includes('arm64') ||
+        userAgent.includes('aarch64') || userAgent.includes('arm64');
+
+    if (is64) {
         return 'arm64';
     }
 
-    // If it includes 'armv8l', 'armv7', or just 'arm', it's almost certainly a 32-bit OS
+    // If it includes 'armv8l', 'armv7', etc. and passed the 64-bit check above, 
+    // then it really is a 32-bit environment (Redmi A3 case).
     if (platform.includes('armv8l') || platform.includes('armv7') || platform.includes('armeabi') || platform.includes('arm')) {
         return 'arm32';
     }
