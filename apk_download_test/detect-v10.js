@@ -48,7 +48,7 @@ async function detectArchitecture() {
     // Default to arm32 UNLESS the device confirms it has HIGH RAM (4GB+),
     // which would indicate a modern 64-bit phone with a legacy platform string.
     if (platform.includes('armv8l')) {
-        if (ram !== undefined && ram >= 4) return 'arm64'; // e.g. Samsung A14 with legacy string
+        if (ram !== undefined && ram >= 3) return 'arm64'; // e.g. Samsung A14 with legacy string
         return 'arm32'; // Redmi 9A / Redmi A3 — low RAM or deviceMemory unsupported
     }
 
