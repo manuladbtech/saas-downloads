@@ -36,9 +36,10 @@ async function detectArchitecture() {
     if (isGenericAndroid) {
         // If it looks like budget OS (armv8l/armv7) OR it doesn't clearly say 64-bit:
         if (isBudgetOSString || !isPure64String) {
-            // Devices with > 4GB RAM are 99.9% 64-bit OS capable.
-            if (ram > 4) return 'arm64';
-            // Devices with <= 4GB RAM (Redmi 9A, etc.) are much safer on 32-bit (ARMv7).
+            // navigator.deviceMemory caps at 4 for any device with 4GB+ RAM (spec-defined fingerprint protection).
+            // So ram === 4 means "4GB or more" — these are virtually always 64-bit capable devices (e.g. Galaxy A54 5G).
+            if (ram >= 4) return 'arm64';
+            // Devices with < 4GB RAM (Redmi 9A, etc.) are much safer on 32-bit (ARMv7).
             return 'arm32';
         }
     }
