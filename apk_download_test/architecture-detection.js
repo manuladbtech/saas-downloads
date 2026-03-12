@@ -7,6 +7,22 @@
  * 2. High-end 64-bit devices with legacy reporting strings
  */
 
+/** ── Single source of truth for the APK version ── */
+const APP_VERSION = '0.0.5';
+
+const BASE_URL = 'https://raw.githubusercontent.com/manuladbtech/saas-downloads/main/apks_on_github';
+
+/** Injects versioned download URLs into all three buttons */
+function setDownloadLinks() {
+    const btn64   = document.getElementById('btn-arm64');
+    const btn32   = document.getElementById('btn-arm32');
+    const btnUniv = document.getElementById('btn-universal');
+
+    if (btn64)   btn64.href   = `${BASE_URL}/SAAS_${APP_VERSION}_arm64.apk`;
+    if (btn32)   btn32.href   = `${BASE_URL}/SAAS_${APP_VERSION}_arm.apk`;
+    if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_${APP_VERSION}_universal.apk`;
+}
+
 async function detectArchitecture() {
     const platform = (navigator.platform || '').toLowerCase();
     const ua = navigator.userAgent.toLowerCase();
@@ -97,6 +113,9 @@ function updateUI(arch) {
 
 // Initialization Flow
 window.addEventListener('DOMContentLoaded', async () => {
+    // Set all download button URLs from the single APP_VERSION constant
+    setDownloadLinks();
+
     // Elegant delay to ensure layout stability
     await new Promise(resolve => setTimeout(resolve, 800));
 
