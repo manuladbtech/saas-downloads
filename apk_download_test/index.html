@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download App - Smart Architecture Detection</title>
+    <title data-i18n="page-title">Download App - Smart Architecture Detection</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,23 +19,30 @@
         <div class="blob blob-3"></div>
     </div>
 
+    <!-- Language Selector -->
+    <div class="language-selector">
+        <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+        <span class="divider"></span>
+        <button class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">中文</button>
+    </div>
+
     <main class="container">
         <header class="hero">
-            <h1 class="title">Get the App</h1>
-            <p class="subtitle">Experience the game with maximum performance. We'll help you pick the right version for
+            <h1 class="title" data-i18n="hero-title">Get the App</h1>
+            <p class="subtitle" data-i18n="hero-subtitle">Experience the game with maximum performance. We'll help you pick the right version for
                 your device.</p>
         </header>
 
         <section class="download-section">
             <div id="detection-status" class="status-card">
                 <div class="loader-spinner" id="loader"></div>
-                <p id="status-text">Analyzing device compatibility...</p>
+                <p id="status-text" data-i18n="status-analyzing">Analyzing device compatibility...</p>
             </div>
 
             <div class="grid">
                 <!-- ARM64 Button -->
                 <div class="download-card" id="card-arm64">
-                    <div class="badge" id="badge-arm64">Recommended</div>
+                    <div class="badge" id="badge-arm64" data-i18n="badge-recommended">Recommended</div>
                     <div class="icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path
@@ -43,13 +50,13 @@
                         </svg>
                     </div>
                     <h3>ARM64 (v8a)</h3>
-                    <p>Optimized for modern 64-bit devices. Provides better performance and security.</p>
-                    <a href="#" class="btn" id="btn-arm64">Download APK</a>
+                    <p data-i18n="card-arm64-desc">Optimized for modern 64-bit devices. Provides better performance and security.</p>
+                    <a href="#" class="btn" id="btn-arm64" data-i18n="btn-download">Download APK</a>
                 </div>
 
                 <!-- ARMv7 Button -->
                 <div class="download-card" id="card-arm32">
-                    <div class="badge" id="badge-arm32">Recommended</div>
+                    <div class="badge" id="badge-arm32" data-i18n="badge-recommended">Recommended</div>
                     <div class="icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path
@@ -57,27 +64,37 @@
                         </svg>
                     </div>
                     <h3>ARMv7 (32-bit)</h3>
-                    <p>Compatible with older or budget devices. Solid stability for classic hardware.</p>
-                    <a href="#" class="btn" id="btn-arm32">Download APK</a>
+                    <p data-i18n="card-arm32-desc">Compatible with older or budget devices. Solid stability for classic hardware.</p>
+                    <a href="#" class="btn" id="btn-arm32" data-i18n="btn-download">Download APK</a>
                 </div>
 
                 <!-- Universal / x86 -->
                 <div class="download-card secondary" id="card-x86">
-                    <h3>Other Versions</h3>
-                    <p>Looking for PC emulators or universal versions?</p>
+                    <h3 data-i18n="card-other-title">Other Versions</h3>
+                    <p data-i18n="card-other-desc">Looking for PC emulators or universal versions?</p>
                     <div class="btn-group">
-                        <a href="#" class="btn-outline" id="btn-universal">Universal APK</a>
+                        <a href="#" class="btn-outline" id="btn-universal" data-i18n="btn-universal">Universal APK</a>
                     </div>
                 </div>
             </div>
         </section>
 
         <footer class="footer">
-            <p>Not sure which one to pick? The highlighted version is auto-detected for your system.</p>
+            <p data-i18n="footer-text">Not sure which one to pick? The highlighted version is auto-detected for your system.</p>
+            <div class="copy-link-container">
+                <button id="copy-btn" class="copy-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span data-i18n="copy-link">Copy Site Link</span>
+                </button>
+            </div>
         </footer>
     </main>
 
+    <script src="translations.js"></script>
     <script src="architecture-detection.js?v=1.1.0"></script>
 </body>
 
-</html>
+</html>

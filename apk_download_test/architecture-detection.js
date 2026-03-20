@@ -79,9 +79,11 @@ async function detectArchitecture() {
  */
 function updateUI(arch) {
     const loader = document.getElementById('loader');
-    const statusText = document.getElementById('status-text');
     const cardArm64 = document.getElementById('card-arm64');
     const cardArm32 = document.getElementById('card-arm32');
+
+    // Store for translation switching
+    window.lastArch = arch;
 
     // Hide loader
     if (loader) loader.style.display = 'none';
@@ -90,21 +92,21 @@ function updateUI(arch) {
     cardArm64?.classList.remove('recommended');
     cardArm32?.classList.remove('recommended');
 
+    // Update status text via translation system
+    if (window.updateStatusText) {
+        window.updateStatusText(arch);
+    }
+
+    // Set CSS highlights
     switch (arch) {
         case 'arm64':
             cardArm64?.classList.add('recommended');
-            if (statusText) statusText.innerHTML = "<strong>Premium device detected.</strong> ARM64 build is optimized for your hardware.";
             break;
         case 'arm32':
             cardArm32?.classList.add('recommended');
-            if (statusText) statusText.innerText = "Compatibility mode enabled. ARMv7 build selected for maximum stability.";
-            break;
-        case 'x64':
-            if (statusText) statusText.innerText = "Desktop/Emulator detected. Use the Universal or x64 versions.";
             break;
         default:
             cardArm64?.classList.add('recommended');
-            if (statusText) statusText.innerText = "Standard device detected. Recommending our most compatible 64-bit build.";
     }
 
     // Trigger staggered entry animations
@@ -136,9 +138,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (copyBtn) {
         copyBtn.addEventListener('click', () => {
             navigator.clipboard.writeText(window.location.href).then(() => {
-                const originalText = copyBtn.innerHTML;
-                copyBtn.innerHTML = "Link Copied!";
-                setTimeout(() => { copyBtn.innerHTML = originalText; }, 2000);
+                const textSpan = copyBtn.querySelector('[data-i18n="copy-link"]');
+                if (textSpan) {
+                    const originalKey = 'copy-link';
+                    const successKey = 'link-copied';
+                    
+                    textSpan.innerHTML = window.translations[window.currentLang][successKey];
+                    setTimeout(() => { 
+                        textSpan.innerHTML = window.translations[window.currentLang][originalKey]; 
+                    }, 2000);
+                }
             });
         });
     }
