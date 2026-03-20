@@ -8,7 +8,7 @@
  */
 
 /** ── Single source of truth for the APK version ── */
-const APP_VERSION = '0.0.5';
+// const APP_VERSION = '0.0.5';
 
 const BASE_URL = 'https://raw.githubusercontent.com/manuladbtech/saas-downloads/main/apks_on_github';
 
@@ -18,9 +18,13 @@ function setDownloadLinks() {
     const btn32   = document.getElementById('btn-arm32');
     const btnUniv = document.getElementById('btn-universal');
 
-    if (btn64)   btn64.href   = `${BASE_URL}/SAAS_${APP_VERSION}_arm64.apk`;
-    if (btn32)   btn32.href   = `${BASE_URL}/SAAS_${APP_VERSION}_arm.apk`;
-    if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_${APP_VERSION}_universal.apk`;
+    // if (btn64)   btn64.href   = `${BASE_URL}/SAAS_${APP_VERSION}_arm64.apk`;
+    // if (btn32)   btn32.href   = `${BASE_URL}/SAAS_${APP_VERSION}_arm.apk`;
+    // if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_${APP_VERSION}_universal.apk`;
+
+    if (btn64)   btn64.href   = `${BASE_URL}/SAAS_0.0.7_arm64.apk`;
+    if (btn32)   btn32.href   = `${BASE_URL}/SAAS_0.0.8_arm.apk`;
+    if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_0.0.9_universal.apk`;
 }
 
 async function detectArchitecture() {
