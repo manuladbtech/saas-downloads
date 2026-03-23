@@ -32,12 +32,12 @@ async function detectArchitecture() {
     const ua = navigator.userAgent.toLowerCase();
     const ram = navigator.deviceMemory || 0;
 
-    // 1. Desktop & Emulator Logic
+    // 1. Desktop & Emulator Logic (Prioritize x86/x64)
     if (platform.includes('x86') || platform.includes('amd64') || ua.includes('x86')) {
         return 'x64';
     }
 
-    // 2. High-Entropy Modern API (Chrome 90+ on Android)
+    // 2. High-Entropy Modern API (Chrome 90+ on Android) - MOST RELIABLE
     if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
         try {
             const hints = await navigator.userAgentData.getHighEntropyValues(['bitness', 'architecture']);
@@ -46,32 +46,27 @@ async function detectArchitecture() {
         } catch (e) { }
     }
 
-    // 3. ARM Tie-Breaker Logic (RAM-Smart Approach)
-    // Budget 32-bit OS usually reports platform 'armv8l' or 'armv7'.
-    // We use a 4GB RAM threshold as the master decider for Android.
-    const isGenericAndroid = ua.includes('android');
-    const isBudgetOSString = /armv[78][l1i]/.test(platform) || /armv7/.test(ua);
+    // 3. Explicit Architecture Strings
     const isPure64String = platform.includes('aarch64') || platform.includes('arm64') || ua.includes('aarch64');
+    if (isPure64String) return 'arm64';
 
-    if (isGenericAndroid) {
-        // If it looks like budget OS (armv8l/armv7) OR it doesn't clearly say 64-bit:
-        if (isBudgetOSString || !isPure64String) {
-            // navigator.deviceMemory caps at 4 for any device with 4GB+ RAM (spec-defined fingerprint protection).
-            // So ram === 4 means "4GB or more" — these are virtually always 64-bit capable devices (e.g. Galaxy A54 5G).
-            if (ram >= 4) return 'arm64';
-            // Devices with < 4GB RAM (Redmi 9A, etc.) are much safer on 32-bit (ARMv7).
-            return 'arm32';
-        }
-    }
+    // 4. Budget/Legacy OS Strings (armv8l, armv7, etc.)
+    // If it specifically reports armv8l or armv7, it is almost certainly a 32-bit environment
+    // (either 32-bit hardware or 32-bit OS on 64-bit hardware).
+    const isBudgetOSString = /armv[78][l1i]/.test(platform) || /armv7/.test(ua);
+    if (isBudgetOSString) return 'arm32';
 
-    // 4. Fallback Mathematical Proof (Final Check)
+    // 5. Fallback/Tie-Breaker
+    // If we've reached here, the strings are ambiguous. 
+    // We only recommend arm64 if we have a strong hint from the engine or high RAM.
     const engineSupports64 = (typeof BigInt64Array !== 'undefined');
-
-    if (isPure64String || (engineSupports64 && ram > 4)) {
+    
+    // We stay conservative: only return arm64 if it's NOT a budget string AND it has evidence of 64-bit capability.
+    if (engineSupports64 && ram >= 4 && !isBudgetOSString) {
         return 'arm64';
     }
 
-    return 'arm32';
+    return 'arm32'; // Safest default for Android
 }
 
 /**
@@ -79,14 +74,16 @@ async function detectArchitecture() {
  */
 function updateUI(arch) {
     const loader = document.getElementById('loader');
+    const statusCard = document.getElementById('status-card');
     const cardArm64 = document.getElementById('card-arm64');
     const cardArm32 = document.getElementById('card-arm32');
 
     // Store for translation switching
     window.lastArch = arch;
 
-    // Hide loader
+    // Transition: Swap loader for status card
     if (loader) loader.style.display = 'none';
+    if (statusCard) statusCard.style.display = 'flex';
 
     // Reset highlights
     cardArm64?.classList.remove('recommended');

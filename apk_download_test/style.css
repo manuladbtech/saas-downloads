@@ -176,6 +176,13 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
+.icon-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+}
+
 .loader-spinner {
     width: 20px;
     height: 20px;

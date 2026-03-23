@@ -27,12 +27,27 @@
     </div>
 
     <main class="container">
+        <header class="hero">
+            <h1 class="title" data-i18n="hero-title">Get the App</h1>
+            <p class="subtitle" data-i18n="hero-subtitle">Experience the game with maximum performance. We'll help you pick the right version for your device.</p>
+        </header>
+
+        <!-- Detection Status Messaging -->
+        <div id="loader" class="status-card">
+            <div class="loader-spinner"></div>
+            <span id="analyzing-text" data-i18n="status-analyzing">Analyzing device compatibility...</span>
+        </div>
         
+        <div id="status-card" class="status-card" style="display: none;">
+            <div class="icon-indicator">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width:16px; height:24px;">
+                    <path d="M20 6L9 17L4 12" />
+                </svg>
+            </div>
+            <span id="status-text"></span>
+        </div>
 
         <section class="download-section">
-            <br>
-            <br>
-            <br>
             <div class="grid">
                 <!-- ARM64 Button -->
                 <div class="download-card" id="card-arm64">
