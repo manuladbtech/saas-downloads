@@ -22,9 +22,9 @@ function setDownloadLinks() {
     // if (btn32)   btn32.href   = `${BASE_URL}/SAAS_${APP_VERSION}_arm.apk`;
     // if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_${APP_VERSION}_universal.apk`;
 
-    if (btn64)   btn64.href   = `${BASE_URL}/SAAS_0.0.7_arm64.apk`;
-    if (btn32)   btn32.href   = `${BASE_URL}/SAAS_0.0.8_arm.apk`;
-    if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_0.0.9_universal.apk`;
+    if (btn64)   btn64.href   = `${BASE_URL}/SAAS_0.0.10_arm64.apk`;
+    if (btn32)   btn32.href   = `${BASE_URL}/SAAS_0.0.11_arm.apk`;
+    if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_0.0.12_universal.apk`;
 }
 
 async function detectArchitecture() {
@@ -46,27 +46,27 @@ async function detectArchitecture() {
         } catch (e) { }
     }
 
-    // 3. Explicit Architecture Strings
-    const isPure64String = platform.includes('aarch64') || platform.includes('arm64') || ua.includes('aarch64');
-    if (isPure64String) return 'arm64';
-
-    // 4. Budget/Legacy OS Strings (armv8l, armv7, etc.)
-    // If it specifically reports armv8l or armv7, it is almost certainly a 32-bit environment
-    // (either 32-bit hardware or 32-bit OS on 64-bit hardware).
-    const isBudgetOSString = /armv[78][l1i]/.test(platform) || /armv7/.test(ua);
-    if (isBudgetOSString) return 'arm32';
-
-    // 5. Fallback/Tie-Breaker
-    // If we've reached here, the strings are ambiguous. 
-    // We only recommend arm64 if we have a strong hint from the engine or high RAM.
+    // 3. 64-bit Engine Check (The "Samsung A03/A04e" Fix)
+    // If the browser supports BigInt64Array, the OS MUST be 64-bit,
+    // regardless of what the legacy platform strings say.
     const engineSupports64 = (typeof BigInt64Array !== 'undefined');
+    const isPure64String = platform.includes('aarch64') || platform.includes('arm64') || ua.includes('aarch64');
     
-    // We stay conservative: only return arm64 if it's NOT a budget string AND it has evidence of 64-bit capability.
-    if (engineSupports64 && ram >= 4 && !isBudgetOSString) {
+    if (isPure64String || engineSupports64) {
         return 'arm64';
     }
 
-    return 'arm32'; // Safest default for Android
+    // 4. Budget/Legacy OS Strings (armv8l, armv7, etc.)
+    // Only reach here if the engine itself isn't 64-bit capable.
+    const isBudgetOSString = /armv[78][l1i]/.test(platform) || /armv7/.test(ua);
+    
+    // RAM-Smart Tie-Breaker for remaining ambiguous devices
+    if (isBudgetOSString) {
+        if (ram >= 4) return 'arm64'; // High RAM devices are virtually always 64-bit capable
+        return 'arm32';
+    }
+
+    return 'arm32'; // Safest fallback for Android legacy devices
 }
 
 /**
