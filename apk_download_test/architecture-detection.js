@@ -14,17 +14,17 @@ const BASE_URL = 'https://raw.githubusercontent.com/manuladbtech/saas-downloads/
 
 /** Injects versioned download URLs into all three buttons */
 function setDownloadLinks() {
-    const btn64   = document.getElementById('btn-arm64');
-    const btn32   = document.getElementById('btn-arm32');
+    const btn64 = document.getElementById('btn-arm64');
+    const btn32 = document.getElementById('btn-arm32');
     const btnUniv = document.getElementById('btn-universal');
 
     // if (btn64)   btn64.href   = `${BASE_URL}/SAAS_${APP_VERSION}_arm64.apk`;
     // if (btn32)   btn32.href   = `${BASE_URL}/SAAS_${APP_VERSION}_arm.apk`;
     // if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_${APP_VERSION}_universal.apk`;
 
-    if (btn64)   btn64.href   = `${BASE_URL}/SAAS_0.0.7_arm64.apk`;
-    if (btn32)   btn32.href   = `${BASE_URL}/SAAS_0.0.8_arm.apk`;
-    if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_0.0.9_universal.apk`;
+    if (btn64) btn64.href = `${BASE_URL}/SAAS_0.0.10_arm64.apk`;
+    if (btn32) btn32.href = `${BASE_URL}/SAAS_0.0.11_arm.apk`;
+    if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_0.0.12_universal.apk`;
 }
 
 async function detectArchitecture() {
@@ -142,10 +142,10 @@ window.addEventListener('DOMContentLoaded', async () => {
                 if (textSpan) {
                     const originalKey = 'copy-link';
                     const successKey = 'link-copied';
-                    
+
                     textSpan.innerHTML = window.translations[window.currentLang][successKey];
-                    setTimeout(() => { 
-                        textSpan.innerHTML = window.translations[window.currentLang][originalKey]; 
+                    setTimeout(() => {
+                        textSpan.innerHTML = window.translations[window.currentLang][originalKey];
                     }, 2000);
                 }
             });
