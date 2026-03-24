@@ -22,9 +22,9 @@ function setDownloadLinks() {
     // if (btn32)   btn32.href   = `${BASE_URL}/SAAS_${APP_VERSION}_arm.apk`;
     // if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_${APP_VERSION}_universal.apk`;
 
-    if (btn64) btn64.href = `${BASE_URL}/SAAS_0.0.16_arm64.apk`;
-    if (btn32) btn32.href = `${BASE_URL}/SAAS_0.0.17_arm.apk`;
-    if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_0.0.18_universal.apk`;
+    if (btn64) btn64.href = `${BASE_URL}/SAAS_0.0.22_arm64.apk`;
+    if (btn32) btn32.href = `${BASE_URL}/SAAS_0.0.23_arm.apk`;
+    if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_0.0.24_universal.apk`;
 }
 
 async function detectArchitecture() {
