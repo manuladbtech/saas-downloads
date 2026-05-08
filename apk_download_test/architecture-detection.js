@@ -22,8 +22,8 @@ function setDownloadLinks() {
     // if (btn32)   btn32.href   = `${BASE_URL}/SAAS_${APP_VERSION}_arm.apk`;
     // if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_${APP_VERSION}_universal.apk`;
 
-    if (btn64) btn64.href = `${BASE_URL}/SAAS_0.0.28_arm64.apk`;
-    if (btn32) btn32.href = `${BASE_URL}/SAAS_0.0.29_arm.apk`;
+    if (btn64) btn64.href = `${BASE_URL}/SAAS_0.0.32_arm64.apk`;
+    if (btn32) btn32.href = `${BASE_URL}/SAAS_0.0.33_arm.apk`;
     // if (btnUniv) btnUniv.href = `${BASE_URL}/SAAS_0.0.27_universal.apk`;
 }
 
